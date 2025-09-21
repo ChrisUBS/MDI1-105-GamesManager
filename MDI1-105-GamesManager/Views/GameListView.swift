@@ -10,40 +10,38 @@ import SwiftUI
 struct GameListView: View {
     
     @Binding var games: [Game]
-    @State var showAddView: Bool = false
-    @State var newGame = Game(
-        title: "Test Game",
-        image: "default_game",
-        description: "This is a placeholder test entry for development purposes.",
-        author: "Test Author",
-        year: 2025,
-        category: "In progress",
-        rating: 3,
-        review: "Just a test entry to check rendering and functionality.",
-        status: "In Progress",
-        isFavorite: false
-    )
+    @State var showEditView: Bool = false
+    @State var newGame = Game()
     
     var body: some View {
         NavigationStack {
-            List($games, id: \.self.id) { $game in
-                NavigationLink(destination: GameDetailView(game: $game)) {
-                    GameListItemView(game: game)
+            List {
+                ForEach($games, id: \.id) { $game in
+                    NavigationLink(destination: GameDetailView(game: $game)) {
+                        GameListItemView(game: game)
+                    }
                 }
+                .onDelete(perform: deleteGames)
             }
             .navigationBarTitle("My Games")
-            .navigationBarItems(trailing: Button("Add", action: {
-                showAddView.toggle()
-            }))
-            .sheet(
-                isPresented: $showAddView,
-                onDismiss: {
-                    let _ = print("This is dismissed")
-                },
-                content: {
-                    EditGameView(game: $newGame)
-                }
+            .navigationBarItems(
+                leading: EditButton(),
+                trailing: Button("Add", action: {
+                    newGame = Game()
+                    showEditView.toggle()
+                })
             )
+            .sheet(isPresented: $showEditView) {
+                AddEditGameView(game: $newGame) { savedGame in
+                    if !games.contains(where: { $0.id == savedGame.id }) {
+                        games.append(savedGame)
+                    }
+                }
+            }
         }
+    }
+    
+    private func deleteGames(at offsets: IndexSet) {
+        games.remove(atOffsets: offsets)
     }
 }

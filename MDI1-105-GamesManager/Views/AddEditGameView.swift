@@ -7,16 +7,21 @@
 
 import SwiftUI
 
-struct EditGameView: View {
+struct AddEditGameView: View {
     @Binding var game: Game
+    var onSave: (Game) -> Void
     @Environment(\.dismiss) var dismiss
     @State private var draftGame: Game
+    @State private var navigationTitle: String
+
     
     let statuses = ["Completed", "Wishlist", "In Progress"]
     
-    init(game: Binding<Game>) {
+    init(game: Binding<Game>, onSave: @escaping (Game) -> Void) {
         self._game = game
         self._draftGame = State(initialValue: game.wrappedValue)
+        self._navigationTitle = State(initialValue: game.wrappedValue.title.isEmpty ? "Add a new game" : "Edit game")
+        self.onSave = onSave
     }
     
     var body: some View {
@@ -32,6 +37,12 @@ struct EditGameView: View {
                         }
                     }
                     
+                    TextField("Year", text: Binding(
+                            get: { draftGame.year.map { String($0) } ?? "" },
+                            set: { draftGame.year = Int($0) }
+                        ))
+                        .keyboardType(.numberPad)
+                    
                     TextField("Description", text: $draftGame.description)
                 }
                 
@@ -42,11 +53,12 @@ struct EditGameView: View {
                         .frame(height: 100)
                 }
             }
-            .navigationTitle("Edit Game")
+            .navigationTitle(navigationTitle)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         game = draftGame
+                        onSave(draftGame)
                         dismiss()
                     }
                 }

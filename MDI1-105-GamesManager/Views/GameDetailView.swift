@@ -57,13 +57,7 @@ struct GameDetailView: View {
                 }
                 HStack {
                     Spacer()
-                    Toggle(isOn: $game.isFavorite) {
-                        Image(systemName: game.isFavorite ? "heart.fill" : "heart")
-                            .renderingMode(.original)
-                    }
-                    .toggleStyle(.button)
-                    .font(.title)
-                    .accessibilityLabel(game.isFavorite ? "Remove from favorites" : "Add to favorites")
+                    FavoriteToggle(isFavorite: $game.isFavorite)
                 }
                 Spacer()
             }
@@ -79,7 +73,7 @@ struct GameDetailView: View {
             }
         }
         .sheet(isPresented: $showingEdit) {
-            EditGameView(game: $game)
+            AddEditGameView(game: $game) { _ in }
         }
     }
 }

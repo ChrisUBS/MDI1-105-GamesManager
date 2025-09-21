@@ -39,7 +39,7 @@ struct SquareCardView: View {
                     .lineLimit(1)
                 
                 HStack {
-                    Text("\(game.year.description)")
+                    Text("\(game.year!.description)")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                     
